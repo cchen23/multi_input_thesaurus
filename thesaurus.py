@@ -11,6 +11,7 @@ def read_embeddings(filename):
 on cosine similarity of word embeddings. Returns a list of all the words
 (which can include the starting words). """
 def find_closest_words(starting_words, num_closest, embeddings_df):
+    # TODO: profile and try to speed up.
     embeddings_matrix = embeddings_df.as_matrix()
     embedding_vectors_norms = np.linalg.norm(embeddings_matrix, axis=1) # nx1 matrix, where row i contains norm of vector i
     starting_words_vector = np.zeros(embeddings_matrix[0].size)
@@ -34,13 +35,57 @@ def find_closest_words(starting_words, num_closest, embeddings_df):
     return neighbors_words
 
 if __name__ == '__main__':
-    embeddings_filename = 'glove/glove.6B.50d.txt'
-    embeddings_df = read_embeddings(embeddings_filename)
+    # TODO: Get command line args.
+    embeddings_filename_50 = 'glove/glove.6B.50d.txt'
+    embeddings_filename_100 = 'glove/glove.6B.100d.txt'
+    embeddings_filename_200 = 'glove/glove.6B.200d.txt'
+    embeddings_filename_300 = 'glove/glove.6B.300d.txt'
+
+    embeddings_df_50 = read_embeddings(embeddings_filename_50)
+    embeddings_df_100 = read_embeddings(embeddings_filename_100)
+    embeddings_df_200 = read_embeddings(embeddings_filename_200)
+    embeddings_df_300 = read_embeddings(embeddings_filename_300)
+
     starting_words = ["happy", "joyful", "content"]
-    recommended_words = find_closest_words(starting_words, 10, embeddings_df)
+    print("****************************** Starting words: %s ******************************" % starting_words)
+    print("****************************** 50d ******************************")
+    recommended_words = find_closest_words(starting_words, 10, embeddings_df_50)
+    print("****************************** 100d ******************************")
+    recommended_words = find_closest_words(starting_words, 10, embeddings_df_100)
+    print("****************************** 200d ******************************")
+    recommended_words = find_closest_words(starting_words, 10, embeddings_df_200)
+    print("****************************** 300d ******************************")
+    recommended_words = find_closest_words(starting_words, 10, embeddings_df_300)
+
     starting_words = ["happy", "excited", "nervous"]
-    recommended_words = find_closest_words(starting_words, 10, embeddings_df)
+    print("****************************** Starting words: %s ******************************" % starting_words)
+    print("****************************** 50d ******************************")
+    recommended_words = find_closest_words(starting_words, 10, embeddings_df_50)
+    print("****************************** 100d ******************************")
+    recommended_words = find_closest_words(starting_words, 10, embeddings_df_100)
+    print("****************************** 200d ******************************")
+    recommended_words = find_closest_words(starting_words, 10, embeddings_df_200)
+    print("****************************** 300d ******************************")
+    recommended_words = find_closest_words(starting_words, 10, embeddings_df_300)
+
     starting_words = ["down", "sad"]
-    recommended_words = find_closest_words(starting_words, 10, embeddings_df)
+    print("****************************** Starting words: %s ******************************" % starting_words)
+    print("****************************** 50d ******************************")
+    recommended_words = find_closest_words(starting_words, 10, embeddings_df_50)
+    print("****************************** 100d ******************************")
+    recommended_words = find_closest_words(starting_words, 10, embeddings_df_100)
+    print("****************************** 200d ******************************")
+    recommended_words = find_closest_words(starting_words, 10, embeddings_df_200)
+    print("****************************** 300d ******************************")
+    recommended_words = find_closest_words(starting_words, 10, embeddings_df_300)
+
     starting_words = ["down", "up"]
-    recommended_words = find_closest_words(starting_words, 10, embeddings_df)
+    print("****************************** Starting words: %s ******************************" % starting_words)
+    print("****************************** 50d ******************************")
+    recommended_words = find_closest_words(starting_words, 10, embeddings_df_50)
+    print("****************************** 100d ******************************")
+    recommended_words = find_closest_words(starting_words, 10, embeddings_df_100)
+    print("****************************** 200d ******************************")
+    recommended_words = find_closest_words(starting_words, 10, embeddings_df_200)
+    print("****************************** 300d ******************************")
+    recommended_words = find_closest_words(starting_words, 10, embeddings_df_300)
