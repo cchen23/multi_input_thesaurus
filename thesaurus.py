@@ -16,8 +16,10 @@ def find_closest_words(starting_words, num_closest, embeddings_df):
     embedding_vectors_norms = np.linalg.norm(embeddings_matrix, axis=1) # nx1 matrix, where row i contains norm of vector i
     starting_words_vector = np.zeros(embeddings_matrix[0].size)
     for starting_word in starting_words:
-        # TODO: check if embeddings_df has the starting word. Print a warning if it does not.
-        starting_words_vector += embeddings_df.loc[starting_word]
+        if starting_word not in embeddings_df.index:
+            print("Warning: '%s' was not found in dictionary, and not included in synonym computation." % starting_word)
+        else:
+            starting_words_vector += embeddings_df.loc[starting_word]
     starting_words_vector /= len(starting_words)
 
     neighbors_words = []
