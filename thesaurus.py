@@ -35,27 +35,50 @@ def find_closest_words(starting_words, num_closest, embeddings_df):
     return neighbors_words
 
 if __name__ == '__main__':
-    # TODO: make into a loop.
-    embeddings_length = input("What dimension word vectors would you like to use? (50, 100, 200, or 300)\n")
-    while embeddings_length not in ["50", "100", "200", "300"]:
-        embeddings_length = input("Word vector dimension options are 50, 100, 200, or 300. Which dimension would you like to use?\n")
-    if embeddings_length == "50":
-        embeddings_filename = 'glove/glove.6B.50d.txt'
-    elif embeddings_length == "100":
-        embeddings_filename = 'glove/glove.6B.100d.txt'
-    elif embeddings_length == "200":
-        embeddings_filename = 'glove/glove.6B.200d.txt'
-    else:
-        embeddings_filename = 'glove/glove.6B.300d.txt'
+    run_recommender = True
+    embeddings_filename_50 = 'glove/glove.6B.50d.txt'
+    embeddings_filename_100 = 'glove/glove.6B.100d.txt'
+    embeddings_filename_200 = 'glove/glove.6B.200d.txt'
+    embeddings_filename_300 = 'glove/glove.6B.300d.txt'
 
-    embeddings_df = read_embeddings(embeddings_filename)
+    # Reading embeddings takes awhile, so don't read until necessary.
+    embeddings_df_50 = pd.DataFrame()
+    embeddings_df_100 = pd.DataFrame()
+    embeddings_df_200 = pd.DataFrame()
+    embeddings_df_300 = pd.DataFrame()
 
-    num_closest = input("How many synonyms would you like to receive?\n")
-    while not num_closest.isdigit():
-        num_closest = input("How many synonyms would you like to receive? Please enter a non-negative integer.\n")
-    num_closest = int(num_closest)
+    while (run_recommender):
+        embeddings_length = input("What dimension word vectors would you like to use? (50, 100, 200, or 300)\n")
+        while embeddings_length not in ["50", "100", "200", "300"]:
+            embeddings_length = input("Word vector dimension options are 50, 100, 200, or 300. Which dimension would you like to use?\n")
+        if embeddings_length == "50":
+            if embeddings_df_50.empty:
+                embeddings_df_50 = read_embeddings(embeddings_filename_50)
+            embeddings_df = embeddings_df_50
+        elif embeddings_length == "100":
+            if embeddings_df_100.empty:
+                embeddings_df_100 = read_embeddings(embeddings_filename_100)
+            embeddings_df = embeddings_df_100
+        elif embeddings_length == "200":
+            if embeddings_df_200.empty:
+                embeddings_df_200 = read_embeddings(embeddings_filename_200)
+            embeddings_df = embeddings_df_200
+        else:
+            if embeddings_df_300.empty:
+                embeddings_df_300 = read_embeddings(embeddings_filename_300)
+            embeddings_df = embeddings_df_300
 
-    starting_words = input("Enter your list of starting words, separated by commas (without spaces between words).\n")
-    starting_words = starting_words.split(",")
+        num_closest = input("How many synonyms would you like to receive?\n")
+        while not num_closest.isdigit():
+            num_closest = input("How many synonyms would you like to receive? Please enter a non-negative integer.\n")
+        num_closest = int(num_closest)
 
-    recommended_words = find_closest_words(starting_words, num_closest, embeddings_df)
+        starting_words = input("Enter your list of starting words, separated by commas (without spaces between words).\n")
+        starting_words = starting_words.split(",")
+
+        recommended_words = find_closest_words(starting_words, num_closest, embeddings_df)
+
+        run_recommender = input("Would you like to generate more recommendations? Y/N\n")
+        while run_recommender not in ["Y", "y", "N", "n"]:
+            run_recommender = input("Would you like to generate more recommendations? Please enter Y/N\n")
+        run_recommender = run_recommender in ["Y", "y"]
