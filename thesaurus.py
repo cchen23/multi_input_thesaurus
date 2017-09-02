@@ -73,8 +73,9 @@ if __name__ == '__main__':
             num_closest = input("How many synonyms would you like to receive? Please enter a non-negative integer.\n")
         num_closest = int(num_closest)
 
-        starting_words = input("Enter your list of starting words, separated by commas (without spaces between words).\n")
+        starting_words = input("Enter your list of starting words, separated by commas.\n")
         starting_words = starting_words.split(",")
+        starting_words = [word.strip() for word in starting_words]
 
         recommended_words = find_closest_words(starting_words, num_closest, embeddings_df)
 
