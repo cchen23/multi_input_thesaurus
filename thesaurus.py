@@ -7,10 +7,8 @@ def read_embeddings(filename):
     word_embeddings = pd.read_table(filename, header=None, sep=" ", index_col=0, quoting=3)
     return word_embeddings
 
-""" Prints the num_closest closest words to the words in starting_words based
-on cosine similarity of word embeddings. Returns a list of all the words
-(which can include the starting words). """
-def find_closest_words(starting_words, num_closest, embeddings_df):
+""" Returns list of cosine similarities to average embedding of starting words. """
+def compute_cosine_similarities_average_embedding(starting_words, embeddings_df):
     # TODO: profile and try to speed up.
     embeddings_matrix = embeddings_df.as_matrix()
     embedding_vectors_norms = np.linalg.norm(embeddings_matrix, axis=1) # nx1 matrix, where row i contains norm of vector i
@@ -22,9 +20,36 @@ def find_closest_words(starting_words, num_closest, embeddings_df):
             starting_words_vector += embeddings_df.loc[starting_word]
     starting_words_vector /= len(starting_words)
 
-    neighbors_words = []
     dot_prods = np.dot(embeddings_matrix, starting_words_vector) # nx1 matrix, where row i contains dot(word_i_vec, seed_word_vec)
     cosine_similarities = dot_prods / embedding_vectors_norms # just want maximum cosine similarity, so don't worry about dividing by norm of starting word (same for each one)
+    return cosine_similarities
+
+""" Returns list of cosine similarities, where each similarity is product of
+similarity to each starting word. """
+def compute_cosine_similarities_products(starting_words, embeddings_df):
+    # TODO: profile and try to speed up.
+    embeddings_matrix = embeddings_df.as_matrix()
+    embedding_vectors_norms = np.linalg.norm(embeddings_matrix, axis=1) # nx1 matrix, where row i contains norm of vector i
+    starting_words_vector = np.zeros(embeddings_matrix[0].size)
+    cosine_similarities = np.array([])
+    for starting_word in starting_words:
+        if starting_word not in embeddings_df.index:
+            print("Warning: '%s' was not found in dictionary, and not included in synonym computation." % starting_word)
+        else:
+            dot_prods = np.dot(embeddings_matrix, embeddings_df.loc[starting_word]) # nx1 matrix, where row i contains dot(word_i_vec, seed_word_vec)
+            current_cosine_similarity = dot_prods / embedding_vectors_norms # just want maximum cosine similarity, so don't worry about dividing by norm of starting word (same for each one)
+            if cosine_similarities.size == 0:
+                cosine_similarities = current_cosine_similarity
+            else:
+                cosine_similarities *= current_cosine_similarity
+    starting_words_vector /= len(starting_words)
+
+    return cosine_similarities
+
+""" Given cosine similarities, prints and returns num_closest words with highest
+cosine similarities. """
+def find_closest_words(cosine_similarities, num_closest, embeddings_df):
+    neighbors_words = []
     closest_indices = cosine_similarities.argsort()[-(num_closest+1):][::-1]
     words = embeddings_df.index.values
     print("Starting Words: %s" % (", ".join(starting_words)))
@@ -79,7 +104,13 @@ if __name__ == '__main__':
         starting_words = starting_words.split(",")
         starting_words = [word.strip() for word in starting_words]
 
-        recommended_words = find_closest_words(starting_words, num_closest, embeddings_df)
+        print("**********Recommendations from average embeddings:**********")
+        cosine_similarities = compute_cosine_similarities_average_embedding(starting_words, embeddings_df)
+        recommended_words = find_closest_words(cosine_similarities, num_closest, embeddings_df)
+
+        print("**********Recommendations from sums:**********")
+        cosine_similarities = compute_cosine_similarities_products(starting_words, embeddings_df)
+        recommended_words = find_closest_words(cosine_similarities, num_closest, embeddings_df)
 
         run_recommender = input("Would you like to generate more recommendations? Y/N\n")
         while run_recommender not in ["Y", "y", "N", "n"]:
